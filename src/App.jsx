@@ -171,7 +171,7 @@ function HomePage({ setPage }) {
         background: `linear-gradient(160deg, var(--deep-blue) 0%, #243260 60%, #1A2744 100%)`,
         minHeight: "88vh",
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-        textAlign: "center", padding: "4rem 2rem", position: "relative", overflow: "hidden",
+        textAlign: "center", padding: "4rem 2rem 8rem", position: "relative", overflow: "hidden",
       }}>
         <div style={{ position: "absolute", width: 500, height: 500, borderRadius: "50%", border: "1px solid rgba(201,168,76,0.1)", top: "50%", left: "50%", transform: "translate(-50%,-50%)" }} />
         <div style={{ position: "absolute", width: 350, height: 350, borderRadius: "50%", border: "1px solid rgba(201,168,76,0.15)", top: "50%", left: "50%", transform: "translate(-50%,-50%)" }} />
