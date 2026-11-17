@@ -9,8 +9,8 @@
  * 4. לבחור בפונקציה createForm מהרשימה למעלה וללחוץ "הפעלה" (Run). לאשר הרשאות.
  * 5. ביומן (Execution log) יופיעו: קישור לעריכת הטופס, קישור למילוי (לשלוח לנציגות) וקישור לגיליון.
  * 6. שלב ידני אחד (גוגל לא מאפשרת ליצור אותו בקוד): לפתוח את קישור העריכה,
- *    להוסיף שאלה מסוג "העלאת קובץ" (File upload) בשם "צילומי מסך",
- *    סוגי קבצים: תמונה, עד 5 קבצים, לסמן "חובה".
+ *    להוסיף שאלה מסוג "העלאת קובץ" (File upload) בשם "צילום מסך",
+ *    סוגי קבצים: תמונה, עד 5 קבצים.
  */
 
 // ===== הגדרות =====
@@ -22,53 +22,23 @@ function allViewers() {
   const me = Session.getEffectiveUser().getEmail();
   return VENDOR_EMAILS.concat(MANAGER_EMAILS, me ? [me] : []);
 }
-const FORM_TITLE = 'דיווח תקלה במערכת';
-
-// רשימת המסכים/מודולים – אפשר לערוך חופשי
-const SCREENS = [
-  'מסך הזמנה חדשה',
-  'חיפוש לקוח',
-  'כרטיס לקוח',
-  'תשלום / סליקה',
-  'דוחות',
-  'התחברות למערכת',
-  'אחר',
-];
+const FORM_TITLE = 'משהו לא עובד?';
 
 // ===== יצירת הטופס =====
+// לנציגה יש רק שני דברים לעשות: לכתוב משפט אחד ולצרף צילום מסך.
+// השם/המייל והשעה נרשמים אוטומטית.
 function createForm() {
   const form = FormApp.create(FORM_TITLE)
-    .setDescription('נתקלת במשהו שלא עובד? מלאי את הטופס וצרפי צילום מסך. הדיווח יועבר ישירות לספק התוכנה.')
+    .setDescription('כותבים משפט אחד, מצרפים צילום מסך, ושולחים. זהו 🙂')
     .setCollectEmail(true)
     .setProgressBar(false)
-    .setConfirmationMessage('תודה! הדיווח התקבל והועבר לספק 🙏');
-
-  form.addTextItem().setTitle('שם הנציגה').setRequired(true);
-
-  form.addListItem()
-    .setTitle('באיזה מסך / חלק במערכת?')
-    .setChoiceValues(SCREENS)
-    .setRequired(true);
+    .setShowLinkToRespondAgain(true)
+    .setConfirmationMessage('תודה! הדיווח נשלח לספק 🙏');
 
   form.addParagraphTextItem()
-    .setTitle('מה קרה?')
-    .setHelpText('מה ניסית לעשות, ומה קרה בפועל (הודעת שגיאה, מסך תקוע וכו׳)')
+    .setTitle('מה לא עובד?')
+    .setHelpText('משפט אחד מספיק')
     .setRequired(true);
-
-  form.addMultipleChoiceItem()
-    .setTitle('עד כמה זה דחוף?')
-    .setChoiceValues([
-      'חוסם – אי אפשר לעבוד',
-      'מפריע – יש עקיפה',
-      'קטן – לידיעה',
-    ])
-    .setRequired(true);
-
-  form.addDateTimeItem().setTitle('מתי זה קרה? (בערך)').setRequired(false);
-
-  form.addTextItem()
-    .setTitle('מספר לקוח / הזמנה (אם רלוונטי)')
-    .setRequired(false);
 
   // גיליון תשובות + שיתוף עם הספק והמנהל
   const ss = SpreadsheetApp.create(FORM_TITLE + ' – תשובות');
@@ -107,7 +77,8 @@ function onSubmit(e) {
     }
   });
 
-  lines.push('<b>מייל המדווחת:</b> ' + e.response.getRespondentEmail());
+  lines.push('<b>נשלח על ידי:</b> ' + e.response.getRespondentEmail());
+  lines.push('<b>מתי:</b> ' + Utilities.formatDate(e.response.getTimestamp(), 'Asia/Jerusalem', 'dd/MM/yyyy HH:mm'));
 
   if (fileLinks.length) {
     lines.push('<br><b>צילומי מסך:</b>');
@@ -116,12 +87,9 @@ function onSubmit(e) {
     });
   }
 
-  const urgency = lines.find(function (l) { return l.indexOf('דחוף') !== -1; }) || '';
-  const prefix = urgency.indexOf('חוסם') !== -1 ? '🔴 [חוסם] ' : '';
-
   MailApp.sendEmail({
     to: allViewers().join(','),
-    subject: prefix + 'דיווח תקלה חדש מהנציגות',
+    subject: 'דיווח תקלה חדש מהנציגות',
     htmlBody: '<div dir="rtl" style="font-family:Arial">' + lines.join('<br>') + '</div>',
   });
 }
