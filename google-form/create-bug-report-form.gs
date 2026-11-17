@@ -6,22 +6,21 @@
  * 2. למחוק את מה שיש בעורך ולהדביק את כל הקובץ הזה.
  * 3. לעדכן למטה את VENDOR_EMAILS (המייל/ים של הספק) ואת MANAGER_EMAILS (המנהל/ים).
  *    מי שמריץ את הסקריפט היא בעלת הטופס – רואה הכול ומקבלת גם את המיילים אוטומטית.
- * 4. לבחור בפונקציה createForm מהרשימה למעלה וללחוץ "הפעלה" (Run). לאשר הרשאות.
+ * 4. לשמור (Ctrl+S / אייקון הדיסקט) – בלי שמירה הפונקציות לא מופיעות ברשימה.
+ *    ואז לבחור createForm ברשימה הנפתחת שליד כפתור "הפעלה" (Run), ללחוץ "הפעלה" ולאשר הרשאות.
  * 5. ביומן (Execution log) יופיעו: קישור לעריכת הטופס, קישור למילוי (לשלוח לנציגות) וקישור לגיליון.
  * 6. שלב ידני אחד (גוגל לא מאפשרת ליצור אותו בקוד): לפתוח את קישור העריכה,
- *    להוסיף שאלה מסוג "העלאת קובץ" (File upload) בשם "צילום מסך",
- *    סוגי קבצים: תמונה, עד 5 קבצים.
+ *    להוסיף שאלה מסוג "העלאת קובץ" (File upload):
+ *      כותרת: צילום מסך
+ *      תיאור: יש לצלם מסך מלא (כל המסך, לא רק חלק ממנו)
+ *      סוגי קבצים: תמונה, עד 5 קבצים
+ *      ✅ לסמן "חובה"
  */
 
 // ===== הגדרות =====
 const VENDOR_EMAILS = ['vendor@example.com'];   // ← להחליף במייל של הספק
 const MANAGER_EMAILS = ['manager@example.com']; // ← להחליף במייל של המנהל
 
-// כל מי שצריך לראות את הדיווחים: הספק, המנהל, ומי שהריצה את הסקריפט
-function allViewers() {
-  const me = Session.getEffectiveUser().getEmail();
-  return VENDOR_EMAILS.concat(MANAGER_EMAILS, me ? [me] : []);
-}
 const FORM_TITLE = 'משהו לא עובד?';
 
 // ===== יצירת הטופס =====
@@ -29,7 +28,7 @@ const FORM_TITLE = 'משהו לא עובד?';
 // השם/המייל והשעה נרשמים אוטומטית.
 function createForm() {
   const form = FormApp.create(FORM_TITLE)
-    .setDescription('כותבים משפט אחד, מצרפים צילום מסך, ושולחים. זהו 🙂')
+    .setDescription('כותבים משפט אחד, מצרפים צילום של המסך המלא, ושולחים. זהו 🙂')
     .setCollectEmail(true)
     .setProgressBar(false)
     .setShowLinkToRespondAgain(true)
@@ -54,6 +53,12 @@ function createForm() {
   Logger.log('✏️ עריכת הטופס: ' + form.getEditUrl());
   Logger.log('📨 קישור לנציגות: ' + form.getPublishedUrl());
   Logger.log('📊 גיליון תשובות (שותף עם הספק והמנהל): ' + ss.getUrl());
+}
+
+// כל מי שצריך לראות את הדיווחים: הספק, המנהל, ומי שהריצה את הסקריפט
+function allViewers() {
+  const me = Session.getEffectiveUser().getEmail();
+  return VENDOR_EMAILS.concat(MANAGER_EMAILS, me ? [me] : []);
 }
 
 // ===== נשלח אוטומטית בכל הגשה =====
